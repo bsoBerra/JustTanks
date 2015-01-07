@@ -39,7 +39,7 @@ public class Game extends playn.core.Game.Default implements Keyboard.Listener {
     }
 
     private void initStuff() {
-        tankObject = new TankObjekt("images/tank.png");
+        tankObject = new TankObjekt("images/tank.png", graphics().createImageLayer());
     }
 
     @Override
