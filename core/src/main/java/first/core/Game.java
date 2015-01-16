@@ -2,6 +2,9 @@ package first.core;
 
 import playn.core.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static playn.core.PlayN.*;
 
 public class Game extends playn.core.Game.Default implements Keyboard.Listener {
@@ -10,8 +13,10 @@ public class Game extends playn.core.Game.Default implements Keyboard.Listener {
         super(33);
     }
     TankObjekt tankObject;
-
-    private boolean controlLeft, controlRight, controlUp, controlDown;
+    TankWorld tankWorld = new TankWorld();
+    TankShell tankShell;
+    private List<TankShell> shells = new ArrayList<TankShell>();
+    private boolean controlLeft, controlRight, controlUp, controlDown, controlSpace;
 
     @Override
     public void init() {
@@ -26,12 +31,10 @@ public class Game extends playn.core.Game.Default implements Keyboard.Listener {
 
         graphics().rootLayer().add(bg);
 
-
-
         ImmediateLayer gameLayer = graphics().createImmediateLayer(new ImmediateLayer.Renderer() {
             public void render(Surface surface) {
                 surface.clear();
-                tankObject.paint(surface);
+                tankWorld.paint(surface, graphics().createGroupLayer());
             }
         });
         graphics().rootLayer().add(gameLayer);
@@ -39,7 +42,11 @@ public class Game extends playn.core.Game.Default implements Keyboard.Listener {
     }
 
     private void initStuff() {
-        tankObject = new TankObjekt("images/tank.png", graphics().createImageLayer());
+        tankObject = new TankObjekt();
+        tankWorld.addTank(tankObject);
+    }
+    private void shot() {
+        new TankShell(tankObject.getXForShot(), tankObject.getYForShot(), tankObject.getAngleForShot());
     }
 
     @Override
@@ -57,6 +64,9 @@ public class Game extends playn.core.Game.Default implements Keyboard.Listener {
                 break;
             case DOWN:
                 controlDown = true;
+                break;
+            case SPACE:
+                controlSpace = true;
                 break;
             default:
                 break; // nada
@@ -82,6 +92,9 @@ public class Game extends playn.core.Game.Default implements Keyboard.Listener {
             case DOWN:
                 controlDown = false;
                 break;
+            case SPACE:
+                controlSpace = false;
+                break;
             default:
                 break; // nada
         }
@@ -101,6 +114,11 @@ public class Game extends playn.core.Game.Default implements Keyboard.Listener {
         }
         if (controlDown) {
             tankObject.moveDown();
+        }
+
+        if (controlSpace){
+            tankObject.doShot();
+            controlSpace = false;
         }
     }
 

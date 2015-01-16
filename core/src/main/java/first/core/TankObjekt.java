@@ -2,26 +2,26 @@ package first.core;
 
 import playn.core.Image;
 import playn.core.ImageLayer;
-import playn.core.Surface;
+import playn.core.Layer;
 
 import static playn.core.PlayN.assets;
+import static playn.core.PlayN.graphics;
 
 /**
  * Created by Berdniky on 19.12.2014.
  */
 public class TankObjekt {
-    private ImageLayer layer;
-    private float speed = 5;
-    private Image img;
+    private ImageLayer layer = graphics().createImageLayer();
+    private Image img = assets().getImage("images/tank.png");
+    //tank start
     private float x = 200;
     private float y = 200;
+
     private float angle = 0;
-
-    public TankObjekt(String pathToImage, ImageLayer imageLayer) {
-        this.img = assets().getImage(pathToImage);
-        this.layer = imageLayer;
-
-    }
+    private boolean shot;
+    private float currentRechargeTime;
+    private static final float RECHARGE = 100;
+    private static final float RADIAN_NUMBER_IN_360_DEGREE = 6.28318531f;
 
     public void moveLeft() {
         angle -= 0.05;
@@ -32,8 +32,8 @@ public class TankObjekt {
     }
 
     public void moveUp() {
-        y -= Math.cos(angle);
-        x += Math.sin(angle);
+        y -= 2 * Math.cos(angle);
+        x += 2 * Math.sin(angle);
     }
 
     public void moveDown() {
@@ -41,12 +41,43 @@ public class TankObjekt {
         x -= Math.sin(angle);
     }
 
-    public void paint(Surface surface) {
+    public float getXForShot() {
+        return x + 40 * (float) Math.sin(angle);
+    }
+
+    public float getYForShot() {
+        return y - 40 *(float) Math.cos(angle);
+    }
+    public float getAngleForShot(){
+        return angle;
+    }
+
+    public void doShot () {
+        if(currentRechargeTime == RECHARGE) {
+            this.shot = true;
+            currentRechargeTime = 0;
+        }
+    }
+
+    public Layer getLayer() {
+
         layer.setImage(img);
         layer.setOrigin(img.width() / 2f, img.height() / 2f);
         layer.setTranslation(x, y);
-        if(Math.abs(angle/6.28318531) > 1) angle = angle%6.28318531f;
-        surface.drawLayer(layer.setRotation(angle));
+        layer.setRotation(angle);
+        if(Math.abs(angle/RADIAN_NUMBER_IN_360_DEGREE) > 1) angle = angle%RADIAN_NUMBER_IN_360_DEGREE;
+        if(currentRechargeTime <RECHARGE) currentRechargeTime++;
+//        System.out.println(currentRechargeTime);
+//        System.out.println(angle);
+        return layer;
+    }
+
+    public boolean getShot() {
+        return shot;
+    }
+
+    public void setShotFalse(){
+        this.shot = false;
     }
 
 }
